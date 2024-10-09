@@ -94,7 +94,7 @@ struct AcqTextStatus : public pkgAcquireStatus {
 	bool ReleaseInfoChanges(
 		metaIndex const* const LastRelease,
 		metaIndex const* const CurrentRelease,
-		std::vector<ReleaseInfoChange> && Changes
+		std::vector<ReleaseInfoChange>&& Changes
 	) {
 		(void)LastRelease;
 		(void)CurrentRelease;

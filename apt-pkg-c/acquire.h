@@ -65,8 +65,14 @@ struct AcqWorker {
 	pkgAcquire::ItemDesc* item_desc;
 
 	String status() const { return ptr->Status; }
-	u64 current_size() const { return ptr->CurrentItem->CurrentSize; }
-	u64 total_size() const { return ptr->CurrentItem->TotalSize; }
+
+#if APT_PKG_MAJOR == 5
+	u64 current_size() const { return ptr->CurrentSize; }
+	u64 total_size() const { return ptr->TotalSize; }
+#else
+  u64 current_size() const { return ptr->CurrentItem->CurrentSize; }
+  u64 total_size() const { return ptr->CurrentItem->TotalSize; }
+#endif
 
 	UniquePtr<ItemDesc> item() const {
 		if (ptr->CurrentItem == 0) { throw std::runtime_error("Null Item!"); }

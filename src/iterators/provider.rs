@@ -94,7 +94,7 @@ pub(crate) mod raw {
         unsafe fn target_ver(self: &PrvIterator) -> UniquePtr<VerIterator>;
 
         #[cxx_name = "Index"]
-        pub fn index(self: &PrvIterator) -> u64;
+        pub fn index(self: &PrvIterator) -> usize;
         /// Clone the pointer.
         ///
         /// # Safety

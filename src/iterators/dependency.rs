@@ -366,7 +366,7 @@ pub(crate) mod raw {
         pub fn or_dep(self: &DepIterator) -> bool;
 
         #[cxx_name = "Index"]
-        pub fn index(self: &DepIterator) -> u64;
+        pub fn index(self: &DepIterator) -> usize;
         /// Clone the pointer.
         ///
         /// # Safety

@@ -123,7 +123,7 @@ pub(crate) mod raw {
 
         /// The Index number of the PackageFile
         #[cxx_name = "Index"]
-        pub fn index(self: &PkgFileIterator) -> u64;
+        pub fn index(self: &PkgFileIterator) -> usize;
         /// Clone the pointer.
         ///
         /// # Safety
@@ -151,7 +151,7 @@ pub(crate) mod raw {
         unsafe fn package_file(self: &VerFileIterator) -> UniquePtr<PkgFileIterator>;
 
         #[cxx_name = "Index"]
-        pub fn index(self: &VerFileIterator) -> u64;
+        pub fn index(self: &VerFileIterator) -> usize;
         /// Clone the pointer.
         ///
         /// # Safety
@@ -167,7 +167,7 @@ pub(crate) mod raw {
         pub fn end(self: &VerFileIterator) -> bool;
 
         #[cxx_name = "Index"]
-        pub fn index(self: &DescIterator) -> u64;
+        pub fn index(self: &DescIterator) -> usize;
         /// Clone the pointer.
         ///
         /// # Safety

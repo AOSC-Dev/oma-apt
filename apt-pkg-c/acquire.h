@@ -90,7 +90,7 @@ struct AcqTextStatus : public pkgAcquireStatus {
 	void AssignItemID(pkgAcquire::ItemDesc& Itm) {
 		if (Itm.Owner->ID == 0) Itm.Owner->ID = ID++;
 	};
-#if APT_PKG_MAJOR > 5
+#if APT_PKG_MAJOR > 5 || (APT_PKG_MAJOR == 5 && APT_PKG_RELEASE >= 2)
 	bool ReleaseInfoChanges(
 		metaIndex const* const LastRelease,
 		metaIndex const* const CurrentRelease,

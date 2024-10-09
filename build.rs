@@ -23,6 +23,7 @@ fn main() {
         .flag_if_supported("-std=c++17")
         .compile("oma-apt");
 
+
     println!("cargo:rustc-link-lib=apt-pkg");
     for file in source_files {
         println!("cargo:rerun-if-changed={file}")

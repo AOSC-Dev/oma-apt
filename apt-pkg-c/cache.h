@@ -31,7 +31,7 @@ struct PkgCacheFile : public pkgCacheFile {
 
 	// Return a package by name.
 	UniquePtr<PkgIterator> find_pkg(str name) const {
-#if APT_PKG_MAJOR == 5
+#if APT_PKG_MAJOR < 6
 		std::string name_string = name.operator std::string();
 		return std::make_unique<PkgIterator>(
 			this->unconst()->GetPkgCache()->FindPkg(name_string)

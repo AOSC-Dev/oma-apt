@@ -66,12 +66,12 @@ struct AcqWorker {
 
 	String status() const { return ptr->Status; }
 
-#if APT_PKG_MAJOR == 5
+#if APT_PKG_MAJOR < 6
 	u64 current_size() const { return ptr->CurrentSize; }
 	u64 total_size() const { return ptr->TotalSize; }
 #else
-  u64 current_size() const { return ptr->CurrentItem->CurrentSize; }
-  u64 total_size() const { return ptr->CurrentItem->TotalSize; }
+	u64 current_size() const { return ptr->CurrentItem->CurrentSize; }
+	u64 total_size() const { return ptr->CurrentItem->TotalSize; }
 #endif
 
 	UniquePtr<ItemDesc> item() const {
@@ -90,11 +90,11 @@ struct AcqTextStatus : public pkgAcquireStatus {
 	void AssignItemID(pkgAcquire::ItemDesc& Itm) {
 		if (Itm.Owner->ID == 0) Itm.Owner->ID = ID++;
 	};
-
+#if APT_PKG_MAJOR > 5
 	bool ReleaseInfoChanges(
 		metaIndex const* const LastRelease,
 		metaIndex const* const CurrentRelease,
-		std::vector<ReleaseInfoChange>&& Changes
+		std::vector<ReleaseInfoChange> && Changes
 	) {
 		(void)LastRelease;
 		(void)CurrentRelease;
@@ -118,6 +118,7 @@ struct AcqTextStatus : public pkgAcquireStatus {
 		// Not yet implemented. Remove return true when it is.
 		return true;
 	};
+#endif
 	bool MediaChange(std::string Media, std::string Drive) {
 		(void)Drive;
 		(void)Media;

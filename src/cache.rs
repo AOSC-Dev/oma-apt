@@ -6,18 +6,18 @@ use std::path::Path;
 
 use cxx::{Exception, UniquePtr};
 
-use crate::config::{init_config_system, Config};
+use crate::config::{Config, init_config_system};
 use crate::depcache::DepCache;
-use crate::error::{pending_error, AptErrors};
+use crate::error::{AptErrors, pending_error};
 use crate::pkgmanager::raw::OrderResult;
 use crate::progress::{AcquireProgress, InstallProgress, OperationProgress};
 use crate::raw::{
-	create_cache, create_pkgmanager, create_problem_resolver, IntoRawIter, IterPkgIterator,
-	PackageManager, PkgCacheFile, PkgIterator, ProblemResolver,
+	IntoRawIter, IterPkgIterator, PackageManager, PkgCacheFile, PkgIterator, ProblemResolver,
+	create_cache, create_pkgmanager, create_problem_resolver,
 };
 use crate::records::{PackageRecords, SourceRecords};
 use crate::util::{apt_lock, apt_unlock, apt_unlock_inner};
-use crate::Package;
+use crate::{Package, PkgSelectedState};
 
 /// Selection of Upgrade type
 #[repr(i32)]
@@ -56,6 +56,7 @@ pub struct PackageSort {
 	installed: Sort,
 	auto_installed: Sort,
 	auto_removable: Sort,
+	hold: Sort,
 }
 
 impl Default for PackageSort {
@@ -67,6 +68,7 @@ impl Default for PackageSort {
 			installed: Sort::Disable,
 			auto_installed: Sort::Disable,
 			auto_removable: Sort::Disable,
+			hold: Sort::Disable,
 		}
 	}
 }
@@ -136,6 +138,19 @@ impl PackageSort {
 	/// Only packages that are NOT auto removable will be included.
 	pub fn not_auto_removable(mut self) -> Self {
 		self.auto_removable = Sort::Reverse;
+		self
+	}
+
+	/// Only packages that are hold installed will be included.
+	pub fn hold_installed(mut self) -> Self {
+		self.hold = Sort::Enable;
+		self
+	}
+
+	/// Only packages that are NOT hold installed will be included.
+	pub fn not_hold_installed(mut self) -> Self {
+		self.hold = Sort::Disable;
+		self.installed = Sort::Enable;
 		self
 	}
 }
@@ -340,6 +355,20 @@ impl Cache {
 				},
 			}
 
+			match sort.hold {
+				Sort::Disable => {},
+				Sort::Enable => {
+					if PkgSelectedState::from(pkg.selected_state()) != PkgSelectedState::Hold {
+						continue;
+					}
+				},
+				Sort::Reverse => {
+					if PkgSelectedState::from(pkg.selected_state()) == PkgSelectedState::Hold {
+						continue;
+					}
+				},
+			}
+
 			// If this is reached we're clear to include the package.
 			pkg_list.push(pkg);
 		}
@@ -435,7 +464,9 @@ impl Cache {
 	///     println!("Pkg Name: {}", pkg.name())
 	/// }
 	/// ```
-	pub fn fix_broken(&self) -> bool { self.depcache().fix_broken() }
+	pub fn fix_broken(&self) -> bool {
+		self.depcache().fix_broken()
+	}
 
 	/// Fetch any archives needed to complete the transaction.
 	///
@@ -660,7 +691,9 @@ pub struct CacheIter<'a> {
 impl<'a> Iterator for CacheIter<'a> {
 	type Item = Package<'a>;
 
-	fn next(&mut self) -> Option<Self::Item> { Some(Package::new(self.cache, self.pkgs.next()?)) }
+	fn next(&mut self) -> Option<Self::Item> {
+		Some(Package::new(self.cache, self.pkgs.next()?))
+	}
 }
 
 #[cxx::bridge]

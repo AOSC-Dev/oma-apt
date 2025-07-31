@@ -1,6 +1,7 @@
 mod sort {
 	use oma_apt::cache::*;
 	use oma_apt::new_cache;
+use oma_apt::PkgSelectedState;
 
 	#[test]
 	fn defaults() {
@@ -76,6 +77,30 @@ mod sort {
 		assert!(real_pkgs.is_empty());
 		assert!(!virtual_pkgs.is_empty());
 	}
+
+
+	#[test]
+	fn hold_installed() {
+		let cache = new_cache!().unwrap();
+		let sort = PackageSort::default().hold_installed();
+
+		for pkg in cache.packages(&sort) {
+			assert!(pkg.is_installed());
+			assert!(pkg.selected_state() == PkgSelectedState::Hold);
+		}
+	}
+
+	#[test]
+	fn not_hold_installed() {
+		let cache = new_cache!().unwrap();
+		let sort = PackageSort::default().not_hold_installed();
+
+		for pkg in cache.packages(&sort) {
+			assert!(pkg.is_installed());
+			assert!(pkg.selected_state() != PkgSelectedState::Hold);
+		}
+	}
+
 
 	#[test]
 	fn upgradable() {

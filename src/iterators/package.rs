@@ -6,7 +6,7 @@ use std::fmt;
 use cxx::UniquePtr;
 
 use crate::raw::{IntoRawIter, PkgIterator};
-use crate::{create_depends_map, util, Cache, DepType, Dependency, Provider, Version};
+use crate::{Cache, DepType, Dependency, Provider, Version, create_depends_map, util};
 
 /// The state that the user wishes the package to be in.
 #[derive(Debug, Eq, PartialEq, Hash)]
@@ -161,18 +161,26 @@ impl<'a> Package<'a> {
 	}
 
 	/// True if the Package is installed.
-	pub fn is_installed(&self) -> bool { unsafe { !self.current_version().end() } }
+	pub fn is_installed(&self) -> bool {
+		unsafe { !self.current_version().end() }
+	}
 
 	/// True if the package has versions.
 	///
 	/// If a package has no versions it is considered virtual.
-	pub fn has_versions(&self) -> bool { unsafe { !self.ptr.versions().end() } }
+	pub fn has_versions(&self) -> bool {
+		unsafe { !self.ptr.versions().end() }
+	}
 
 	/// True if the package provides any other packages.
-	pub fn has_provides(&self) -> bool { unsafe { !self.ptr.provides().end() } }
+	pub fn has_provides(&self) -> bool {
+		unsafe { !self.ptr.provides().end() }
+	}
 
 	/// The installed state of this package.
-	pub fn inst_state(&self) -> PkgInstState { PkgInstState::from(self.ptr.inst_state()) }
+	pub fn inst_state(&self) -> PkgInstState {
+		PkgInstState::from(self.ptr.inst_state())
+	}
 
 	/// The selected state of this package.
 	pub fn selected_state(&self) -> PkgSelectedState {
@@ -242,7 +250,9 @@ impl<'a> Package<'a> {
 	}
 
 	/// Check if the package is auto installed. (Not installed by the user)
-	pub fn is_auto_installed(&self) -> bool { self.cache.depcache().is_auto_installed(self) }
+	pub fn is_auto_installed(&self) -> bool {
+		self.cache.depcache().is_auto_installed(self)
+	}
 
 	/// Check if the package is auto removable
 	pub fn is_auto_removable(&self) -> bool {
@@ -296,37 +306,59 @@ impl<'a> Package<'a> {
 	}
 
 	/// Check if the package is now broken
-	pub fn is_now_broken(&self) -> bool { self.cache.depcache().is_now_broken(self) }
+	pub fn is_now_broken(&self) -> bool {
+		self.cache.depcache().is_now_broken(self)
+	}
 
 	/// Check if the package package installed is broken
-	pub fn is_inst_broken(&self) -> bool { self.cache.depcache().is_inst_broken(self) }
+	pub fn is_inst_broken(&self) -> bool {
+		self.cache.depcache().is_inst_broken(self)
+	}
 
 	/// Check if the package is marked NewInstall
-	pub fn marked_new_install(&self) -> bool { self.cache.depcache().marked_new_install(self) }
+	pub fn marked_new_install(&self) -> bool {
+		self.cache.depcache().marked_new_install(self)
+	}
 
 	/// Check if the package is marked install
-	pub fn marked_install(&self) -> bool { self.cache.depcache().marked_install(self) }
+	pub fn marked_install(&self) -> bool {
+		self.cache.depcache().marked_install(self)
+	}
 
 	/// Check if the package is marked upgrade
-	pub fn marked_upgrade(&self) -> bool { self.cache.depcache().marked_upgrade(self) }
+	pub fn marked_upgrade(&self) -> bool {
+		self.cache.depcache().marked_upgrade(self)
+	}
 
 	/// Check if the package is marked purge
-	pub fn marked_purge(&self) -> bool { self.cache.depcache().marked_purge(self) }
+	pub fn marked_purge(&self) -> bool {
+		self.cache.depcache().marked_purge(self)
+	}
 
 	/// Check if the package is marked delete
-	pub fn marked_delete(&self) -> bool { self.cache.depcache().marked_delete(self) }
+	pub fn marked_delete(&self) -> bool {
+		self.cache.depcache().marked_delete(self)
+	}
 
 	/// Check if the package is marked held
-	pub fn marked_held(&self) -> bool { self.cache.depcache().marked_held(self) }
+	pub fn marked_held(&self) -> bool {
+		self.cache.depcache().marked_held(self)
+	}
 
 	/// Check if the package is marked keep
-	pub fn marked_keep(&self) -> bool { self.cache.depcache().marked_keep(self) }
+	pub fn marked_keep(&self) -> bool {
+		self.cache.depcache().marked_keep(self)
+	}
 
 	/// Check if the package is marked downgrade
-	pub fn marked_downgrade(&self) -> bool { self.cache.depcache().marked_downgrade(self) }
+	pub fn marked_downgrade(&self) -> bool {
+		self.cache.depcache().marked_downgrade(self)
+	}
 
 	/// Check if the package is marked reinstall
-	pub fn marked_reinstall(&self) -> bool { self.cache.depcache().marked_reinstall(self) }
+	pub fn marked_reinstall(&self) -> bool {
+		self.cache.depcache().marked_reinstall(self)
+	}
 
 	/// # Mark a package as automatically installed.
 	///
@@ -352,7 +384,9 @@ impl<'a> Package<'a> {
 	/// We don't believe that there is any reason to unmark packages for keep.
 	/// If someone has a reason, and would like it implemented, please put in a
 	/// feature request.
-	pub fn mark_keep(&self) -> bool { self.cache.depcache().mark_keep(self) }
+	pub fn mark_keep(&self) -> bool {
+		self.cache.depcache().mark_keep(self)
+	}
 
 	/// # Mark a package for removal.
 	///
@@ -408,7 +442,9 @@ impl<'a> Package<'a> {
 
 	/// Protect a package's state
 	/// for when [`crate::cache::Cache::resolve`] is called.
-	pub fn protect(&self) { self.cache.resolver().protect(self) }
+	pub fn protect(&self) {
+		self.cache.resolver().protect(self)
+	}
 
 	pub fn changelog_uri(&self) -> Option<String> {
 		let cand = self.candidate()?;
@@ -421,7 +457,7 @@ impl<'a> Package<'a> {
 			while let Some(record) = src_records.lookup(src_pkg.to_string(), false) {
 				let record_version = record.version();
 
-				match util::cmp_versions(&record_version, &src_ver) {
+				match util::cmp_versions(&record_version, &src_ver).expect("Failed to parse ver") {
 					Ordering::Equal | Ordering::Greater => {
 						src_ver = record_version;
 						section = record.section();

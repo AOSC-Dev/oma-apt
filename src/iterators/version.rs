@@ -8,8 +8,8 @@ use cxx::UniquePtr;
 use crate::raw::{IntoRawIter, VerIterator};
 use crate::util::cmp_versions;
 use crate::{
-	create_depends_map, Cache, DepType, Dependency, Package, PackageFile, PackageRecords, Provider,
-	VersionFile,
+	Cache, DepType, Dependency, Package, PackageFile, PackageRecords, Provider, VersionFile,
+	create_depends_map,
 };
 
 /// Represents a single Version of a package.
@@ -57,7 +57,9 @@ impl<'a> Version<'a> {
 	}
 
 	/// Return the version's parent package.
-	pub fn parent(&self) -> Package<'a> { Package::new(self.cache, unsafe { self.parent_pkg() }) }
+	pub fn parent(&self) -> Package<'a> {
+		Package::new(self.cache, unsafe { self.parent_pkg() })
+	}
 
 	/// Returns a reference to the Dependency Map owned by the Version
 	///
@@ -97,7 +99,9 @@ impl<'a> Version<'a> {
 	}
 
 	/// Returns a Reference Vector, if it exists, for "Enhances".
-	pub fn enhances(&self) -> Option<&Vec<Dependency<'a>>> { self.get_depends(&DepType::Enhances) }
+	pub fn enhances(&self) -> Option<&Vec<Dependency<'a>>> {
+		self.get_depends(&DepType::Enhances)
+	}
 
 	/// Returns a Reference Vector, if it exists,
 	/// for "Depends" and "PreDepends".
@@ -124,7 +128,9 @@ impl<'a> Version<'a> {
 	}
 
 	/// Returns a Reference Vector, if it exists, for "suggests".
-	pub fn suggests(&self) -> Option<&Vec<Dependency<'a>>> { self.get_depends(&DepType::Suggests) }
+	pub fn suggests(&self) -> Option<&Vec<Dependency<'a>>> {
+		self.get_depends(&DepType::Suggests)
+	}
 
 	/// Move the PkgRecords into the correct place for the Description
 	fn desc_lookup(&self) -> Option<&PackageRecords> {
@@ -133,10 +139,14 @@ impl<'a> Version<'a> {
 	}
 
 	/// Get the translated long description
-	pub fn description(&self) -> Option<String> { self.desc_lookup()?.long_desc() }
+	pub fn description(&self) -> Option<String> {
+		self.desc_lookup()?.long_desc()
+	}
 
 	/// Get the translated short description
-	pub fn summary(&self) -> Option<String> { self.desc_lookup()?.short_desc() }
+	pub fn summary(&self) -> Option<String> {
+		self.desc_lookup()?.short_desc()
+	}
 
 	/// Get data from the specified record field
 	///
@@ -174,11 +184,15 @@ impl<'a> Version<'a> {
 
 	/// Get the sha256 hash. If there isn't one returns None
 	/// This is equivalent to `version.hash("sha256")`
-	pub fn sha256(&self) -> Option<String> { self.hash("sha256") }
+	pub fn sha256(&self) -> Option<String> {
+		self.hash("sha256")
+	}
 
 	/// Get the sha512 hash. If there isn't one returns None
 	/// This is equivalent to `version.hash("sha512")`
-	pub fn sha512(&self) -> Option<String> { self.hash("sha512") }
+	pub fn sha512(&self) -> Option<String> {
+		self.hash("sha512")
+	}
 
 	/// Returns an Iterator of URIs for the Version.
 	pub fn uris(&self) -> impl Iterator<Item = String> + 'a {
@@ -192,28 +206,36 @@ impl<'a> Version<'a> {
 	}
 
 	/// Set this version as the candidate.
-	pub fn set_candidate(&self) { self.cache.depcache().set_candidate_version(self); }
+	pub fn set_candidate(&self) {
+		self.cache.depcache().set_candidate_version(self);
+	}
 
 	/// The priority of the Version as shown in `apt policy`.
-	pub fn priority(&self) -> i32 { self.cache.priority(self) }
+	pub fn priority(&self) -> i32 {
+		self.cache.priority(self)
+	}
 }
 
 // Implementations for comparing versions.
 impl PartialEq for Version<'_> {
 	fn eq(&self, other: &Self) -> bool {
 		matches!(
-			cmp_versions(self.version(), other.version()),
+			cmp_versions(self.version(), other.version()).expect("Failed to parse ver"),
 			Ordering::Equal
 		)
 	}
 }
 
 impl Ord for Version<'_> {
-	fn cmp(&self, other: &Self) -> Ordering { cmp_versions(self.version(), other.version()) }
+	fn cmp(&self, other: &Self) -> Ordering {
+		cmp_versions(self.version(), other.version()).expect("Failed to parse ver")
+	}
 }
 
 impl PartialOrd for Version<'_> {
-	fn partial_cmp(&self, other: &Self) -> Option<Ordering> { Some(self.cmp(other)) }
+	fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+		Some(self.cmp(other))
+	}
 }
 
 impl fmt::Display for Version<'_> {

@@ -1,10 +1,10 @@
 //! Contains miscellaneous helper utilities.
 use std::cmp::Ordering;
 
-use terminal_size::{terminal_size, Height, Width};
+use terminal_size::{Height, Width, terminal_size};
 
 use crate::error::AptErrors;
-use crate::{config, Cache, DepFlags, Package};
+use crate::{Cache, DepFlags, Package, config};
 
 /// Get the terminal's height, i.e. the number of rows it has.
 ///
@@ -44,13 +44,11 @@ pub fn terminal_width() -> usize {
 ///
 /// assert_eq!(Ordering::Less, result);
 /// ```
-pub fn cmp_versions(ver1: &str, ver2: &str) -> Ordering {
-	let result = raw::cmp_versions(ver1, ver2);
-	match result {
-		_ if result < 0 => Ordering::Less,
-		_ if result == 0 => Ordering::Equal,
-		_ => Ordering::Greater,
-	}
+pub fn cmp_versions(ver1: &str, ver2: &str) -> Result<Ordering, debversion::ParseError> {
+	let ver1: debversion::Version = ver1.parse()?;
+	let ver2: debversion::Version = ver2.parse()?;
+
+	Ok(ver1.cmp(&ver2))
 }
 
 /// Disk Space that `apt` will use for a transaction.

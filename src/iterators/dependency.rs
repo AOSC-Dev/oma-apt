@@ -151,7 +151,7 @@ impl<'a> BaseDep<'a> {
     }
 
     // Iterate all Versions that are able to satisfy this dependency
-    pub fn all_targets(&self) -> Vec<Version> {
+    pub fn all_targets(&self) -> Vec<Version<'_>> {
         unsafe {
             self.ptr
                 .all_targets()
@@ -174,8 +174,9 @@ impl fmt::Display for BaseDep<'_> {
 
 impl fmt::Debug for BaseDep<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		let parent = unsafe { self.parent_pkg() };
         f.debug_struct("BaseDep")
-            .field("parent", unsafe { &self.parent_pkg().name() })
+            .field("parent", &parent.name())
             .field("name", &self.name())
             .field("comp", &self.comp_type())
             .field("version", &self.version())
@@ -235,7 +236,7 @@ impl fmt::Display for Dependency<'_> {
 pub fn create_depends_map(
     cache: &Cache,
     dep: Option<UniquePtr<DepIterator>>,
-) -> HashMap<DepType, Vec<Dependency>> {
+) -> HashMap<DepType, Vec<Dependency<'_>>> {
     let mut dependencies: HashMap<DepType, Vec<Dependency>> = HashMap::new();
 
     if let Some(mut dep) = dep {

@@ -1,7 +1,7 @@
 mod sort {
+    use oma_apt::PkgSelectedState;
     use oma_apt::cache::*;
     use oma_apt::new_cache;
-    use oma_apt::PkgSelectedState;
 
     #[test]
     fn defaults() {

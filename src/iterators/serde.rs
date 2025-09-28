@@ -1,5 +1,5 @@
-use serde::ser::{SerializeSeq, SerializeStruct, Serializer};
 use serde::Serialize;
+use serde::ser::{SerializeSeq, SerializeStruct, Serializer};
 
 use crate::records::RecordField;
 use crate::{BaseDep, Dependency, PackageFile, Version};

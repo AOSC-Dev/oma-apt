@@ -8,8 +8,8 @@ use cxx::UniquePtr;
 use crate::raw::{IntoRawIter, VerIterator};
 use crate::util::cmp_versions;
 use crate::{
-    create_depends_map, Cache, DepType, Dependency, Package, PackageFile, PackageRecords, Provider,
-    VersionFile,
+    Cache, DepType, Dependency, Package, PackageFile, PackageRecords, Provider, VersionFile,
+    create_depends_map,
 };
 
 /// Represents a single Version of a package.
@@ -195,14 +195,16 @@ impl<'a> Version<'a> {
     }
 
     /// Returns an Iterator of URIs for the Version.
-    pub fn uris(&self) -> impl Iterator<Item = String> + 'a {
-        self.version_files().filter_map(|v| {
-            let pkg_file = v.package_file();
-            if !pkg_file.is_downloadable() {
-                return None;
-            }
-            Some(pkg_file.index_file().archive_uri(&v.lookup().filename()))
-        })
+    pub fn uris(&self) -> Vec<String> {
+        self.version_files()
+            .filter_map(move |v| {
+                let pkg_file = v.package_file();
+                if !pkg_file.is_downloadable() {
+                    return None;
+                }
+                Some(pkg_file.index_file().archive_uri(&v.lookup().filename()))
+            })
+            .collect()
     }
 
     /// Set this version as the candidate.

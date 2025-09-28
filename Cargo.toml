@@ -13,8 +13,7 @@ name = "oma-apt"
 readme = "README.md"
 repository = "https://github.com/AOSC-Dev/oma-apt"
 version = "0.10.0"
-
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 cxx = "1"

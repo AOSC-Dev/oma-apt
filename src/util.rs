@@ -40,7 +40,7 @@ pub fn terminal_width() -> usize {
 ///
 /// let ver1 = "5.0";
 /// let ver2 = "6.0";
-/// let result = cmp_versions(ver1, ver2);
+/// let result = cmp_versions(ver1, ver2).unwrap();
 ///
 /// assert_eq!(Ordering::Less, result);
 /// ```

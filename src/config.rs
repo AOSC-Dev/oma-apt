@@ -19,7 +19,9 @@ impl Default for Config {
 	///
 	/// If you initialize the struct without `new()` or `default()`
 	/// You will need to manually initialize the config system.
-	fn default() -> Self { Self::new() }
+	fn default() -> Self {
+		Self::new()
+	}
 }
 // TODO: I think we should not accept &str if we just call to_string() anyway
 impl Config {
@@ -52,7 +54,9 @@ impl Config {
 	///
 	/// If the value is a list, the entire list is cleared.
 	/// If you need to clear 1 value from a list see `self.clear_value`
-	pub fn clear(&self, key: &str) { raw::clear(key.to_string()); }
+	pub fn clear(&self, key: &str) {
+		raw::clear(key.to_string());
+	}
 
 	/// Clear a single value from a list.
 	/// Used for removing one item in an apt configuruation list
@@ -64,10 +68,14 @@ impl Config {
 	///
 	/// This will leave you with an empty configuration object
 	/// and most things probably won't work right.
-	pub fn clear_all(&self) { raw::clear_all(); }
+	pub fn clear_all(&self) {
+		raw::clear_all();
+	}
 
 	/// Returns a string dump of configuration options separated by `\n`
-	pub fn dump(&self) -> String { raw::dump() }
+	pub fn dump(&self) -> String {
+		raw::dump()
+	}
 
 	/// Find a key and return it's value as a string.
 	///
@@ -118,22 +126,36 @@ impl Config {
 	}
 
 	/// Same as find, but for i32 values.
-	pub fn int(&self, key: &str, default: i32) -> i32 { raw::find_int(key.to_string(), default) }
+	pub fn int(&self, key: &str, default: i32) -> i32 {
+		raw::find_int(key.to_string(), default)
+	}
 
 	/// Return a vector for an Apt configuration list.
 	///
 	/// An example of a common key that contains a list `raw::NeverAutoRemove`.
-	pub fn find_vector(&self, key: &str) -> Vec<String> { raw::find_vector(key.to_string()) }
+	pub fn find_vector(&self, key: &str) -> Vec<String> {
+		raw::find_vector(key.to_string())
+	}
 
 	/// Return a vector of supported architectures on this system.
 	/// The main architecture is the first in the list.
-	pub fn get_architectures(&self) -> Vec<String> { raw::get_architectures() }
+	pub fn get_architectures(&self) -> Vec<String> {
+		raw::get_architectures()
+	}
+
+	pub fn get_compression_types(&self) -> Vec<String> {
+		raw::get_compression_types()
+	}
 
 	/// Simply check if a key exists.
-	pub fn contains(&self, key: &str) -> bool { raw::exists(key.to_string()) }
+	pub fn contains(&self, key: &str) -> bool {
+		raw::exists(key.to_string())
+	}
 
 	/// Set the given key to the specified value.
-	pub fn set(&self, key: &str, value: &str) { raw::set(key.to_string(), value.to_string()) }
+	pub fn set(&self, key: &str, value: &str) {
+		raw::set(key.to_string(), value.to_string())
+	}
 
 	pub fn tree(&self, key: &str) -> Option<ConfigTree> {
 		let tree = unsafe { raw::tree(key.to_string()) };
@@ -182,7 +204,9 @@ pub struct ConfigTree {
 }
 
 impl ConfigTree {
-	pub fn new(ptr: UniquePtr<raw::ConfigTree>) -> Self { ConfigTree { ptr } }
+	pub fn new(ptr: UniquePtr<raw::ConfigTree>) -> Self {
+		ConfigTree { ptr }
+	}
 
 	pub fn tag(&self) -> Option<String> {
 		let tag = self.ptr.tag();
@@ -233,7 +257,9 @@ impl IntoIterator for ConfigTree {
 	type IntoIter = IterConfigTree;
 	type Item = ConfigTree;
 
-	fn into_iter(self) -> Self::IntoIter { IterConfigTree(self) }
+	fn into_iter(self) -> Self::IntoIter {
+		IterConfigTree(self)
+	}
 }
 
 pub struct IterConfigTree(ConfigTree);
@@ -302,6 +328,8 @@ pub(crate) mod raw {
 		/// Return a vector of supported architectures on this system.
 		/// The main architecture is the first in the list.
 		pub fn get_architectures() -> Vec<String>;
+
+		pub fn get_compression_types() -> Vec<String>;
 
 		/// Set the given key to the specified value.
 		pub fn set(key: String, value: String);

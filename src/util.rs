@@ -1,21 +1,21 @@
 //! Contains miscellaneous helper utilities.
 use std::cmp::Ordering;
 
-use terminal_size::{Height, Width, terminal_size};
+use terminal_size::{terminal_size, Height, Width};
 
 use crate::error::AptErrors;
-use crate::{Cache, DepFlags, Package, config};
+use crate::{config, Cache, DepFlags, Package};
 
 /// Get the terminal's height, i.e. the number of rows it has.
 ///
 /// # Returns:
 /// * The terminal height, or `24` if it cannot be determined.
 pub fn terminal_height() -> usize {
-	if let Some((_, Height(rows))) = terminal_size() {
-		usize::from(rows)
-	} else {
-		24
-	}
+    if let Some((_, Height(rows))) = terminal_size() {
+        usize::from(rows)
+    } else {
+        24
+    }
 }
 
 /// Get the terminal's width, i.e. the number of columns it has.
@@ -23,11 +23,11 @@ pub fn terminal_height() -> usize {
 /// # Returns:
 /// * The terminal width, or `80` if it cannot be determined.
 pub fn terminal_width() -> usize {
-	if let Some((Width(cols), _)) = terminal_size() {
-		usize::from(cols)
-	} else {
-		80
-	}
+    if let Some((Width(cols), _)) = terminal_size() {
+        usize::from(cols)
+    } else {
+        80
+    }
 }
 
 /// Compares two package versions, `ver1` and `ver2`. The returned enum variant
@@ -45,26 +45,26 @@ pub fn terminal_width() -> usize {
 /// assert_eq!(Ordering::Less, result);
 /// ```
 pub fn cmp_versions(ver1: &str, ver2: &str) -> Result<Ordering, debversion::ParseError> {
-	let ver1: debversion::Version = ver1.parse()?;
-	let ver2: debversion::Version = ver2.parse()?;
+    let ver1: debversion::Version = ver1.parse()?;
+    let ver2: debversion::Version = ver2.parse()?;
 
-	Ok(ver1.cmp(&ver2))
+    Ok(ver1.cmp(&ver2))
 }
 
 /// Disk Space that `apt` will use for a transaction.
 pub enum DiskSpace {
-	/// Additional Disk Space required.
-	Require(u64),
-	/// Disk Space that will be freed
-	Free(u64),
+    /// Additional Disk Space required.
+    Require(u64),
+    /// Disk Space that will be freed
+    Free(u64),
 }
 
 /// Numeral System for unit conversion.
 pub enum NumSys {
-	/// Base 2 | 1024 | KibiByte (KiB)
-	Binary,
-	/// Base 10 | 1000 | KiloByte (KB)
-	Decimal,
+    /// Base 2 | 1024 | KibiByte (KiB)
+    Binary,
+    /// Base 10 | 1000 | KiloByte (KB)
+    Decimal,
 }
 
 /// Converts bytes into human readable output.
@@ -79,50 +79,50 @@ pub enum NumSys {
 /// println!("{}", unit_str(version.size(), NumSys::Decimal));
 /// ```
 pub fn unit_str(val: u64, base: NumSys) -> String {
-	let val = val as f64;
-	let (num, tera, giga, mega, kilo) = match base {
-		NumSys::Binary => (1024.0_f64, "TiB", "GiB", "MiB", "KiB"),
-		NumSys::Decimal => (1000.0_f64, "TB", "GB", "MB", "KB"),
-	};
+    let val = val as f64;
+    let (num, tera, giga, mega, kilo) = match base {
+        NumSys::Binary => (1024.0_f64, "TiB", "GiB", "MiB", "KiB"),
+        NumSys::Decimal => (1000.0_f64, "TB", "GB", "MB", "KB"),
+    };
 
-	let powers = [
-		(num.powi(4), tera),
-		(num.powi(3), giga),
-		(num.powi(2), mega),
-		(num, kilo),
-	];
+    let powers = [
+        (num.powi(4), tera),
+        (num.powi(3), giga),
+        (num.powi(2), mega),
+        (num, kilo),
+    ];
 
-	for (divisor, unit) in powers {
-		if val > divisor {
-			return format!("{:.2} {unit}", val / divisor);
-		}
-	}
-	format!("{val} B")
+    for (divisor, unit) in powers {
+        if val > divisor {
+            return format!("{:.2} {unit}", val / divisor);
+        }
+    }
+    format!("{val} B")
 }
 
 /// Converts seconds into a human readable time string.
 pub fn time_str(seconds: u64) -> String {
-	if seconds > 60 * 60 * 24 {
-		return format!(
-			"{}d {}h {}min {}s",
-			seconds / 60 / 60 / 24,
-			(seconds / 60 / 60) % 24,
-			(seconds / 60) % 60,
-			seconds % 60,
-		);
-	}
-	if seconds > 60 * 60 {
-		return format!(
-			"{}h {}min {}s",
-			(seconds / 60 / 60) % 24,
-			(seconds / 60) % 60,
-			seconds % 60,
-		);
-	}
-	if seconds > 60 {
-		return format!("{}min {}s", (seconds / 60) % 60, seconds % 60,);
-	}
-	format!("{seconds}s")
+    if seconds > 60 * 60 * 24 {
+        return format!(
+            "{}d {}h {}min {}s",
+            seconds / 60 / 60 / 24,
+            (seconds / 60 / 60) % 24,
+            (seconds / 60) % 60,
+            seconds % 60,
+        );
+    }
+    if seconds > 60 * 60 {
+        return format!(
+            "{}h {}min {}s",
+            (seconds / 60 / 60) % 24,
+            (seconds / 60) % 60,
+            seconds % 60,
+        );
+    }
+    if seconds > 60 {
+        return format!("{}min {}s", (seconds / 60) % 60, seconds % 60,);
+    }
+    format!("{seconds}s")
 }
 
 /// Get an APT-styled progress bar.
@@ -137,7 +137,7 @@ pub fn time_str(seconds: u64) -> String {
 /// assert_eq!(progress, "[####....]");
 /// ```
 pub fn get_apt_progress_string(percent: f32, output_width: u32) -> String {
-	raw::get_apt_progress_string(percent, output_width)
+    raw::get_apt_progress_string(percent, output_width)
 }
 
 /// Lock the APT lockfile.
@@ -156,14 +156,14 @@ pub fn get_apt_progress_string(percent: f32, output_width: u32) -> String {
 /// * `E:Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend),
 ///   are you root?`
 pub fn apt_lock() -> Result<(), AptErrors> {
-	config::init_config_system();
-	Ok(raw::apt_lock()?)
+    config::init_config_system();
+    Ok(raw::apt_lock()?)
 }
 
 /// Unlock the APT lockfile.
 pub fn apt_unlock() {
-	config::init_config_system();
-	raw::apt_unlock()
+    config::init_config_system();
+    raw::apt_unlock()
 }
 
 /// Unlock the Dpkg lockfile.
@@ -173,14 +173,14 @@ pub fn apt_unlock() {
 ///
 /// This Function Requires root
 pub fn apt_lock_inner() -> Result<(), AptErrors> {
-	config::init_config_system();
-	Ok(raw::apt_lock_inner()?)
+    config::init_config_system();
+    Ok(raw::apt_lock_inner()?)
 }
 
 /// Unlock the Dpkg lockfile.
 pub fn apt_unlock_inner() {
-	config::init_config_system();
-	raw::apt_unlock_inner()
+    config::init_config_system();
+    raw::apt_unlock_inner()
 }
 
 /// Checks if any locks are currently active for the lockfile. Note that this
@@ -188,8 +188,8 @@ pub fn apt_unlock_inner() {
 /// calls to [`apt_lock`] will return an [`AptErrors`] if another process has an
 /// active lock.
 pub fn apt_is_locked() -> bool {
-	config::init_config_system();
-	raw::apt_is_locked()
+    config::init_config_system();
+    raw::apt_is_locked()
 }
 
 /// Reference implementation to print broken packages just like apt does.
@@ -200,114 +200,118 @@ pub fn apt_is_locked() -> bool {
 ///   * [true] = When checking broken packages before modifying the cache.
 ///   * [false] = When checking broken packages after modifying the cache.
 pub fn show_broken_pkg(cache: &Cache, pkg: &Package, now: bool) -> Option<String> {
-	// If the package isn't broken for the state Return None
-	if (now && !pkg.is_now_broken()) || (!now && !pkg.is_inst_broken()) {
-		return None;
-	};
+    // If the package isn't broken for the state Return None
+    if (now && !pkg.is_now_broken()) || (!now && !pkg.is_inst_broken()) {
+        return None;
+    };
 
-	let mut broken_string = String::new();
+    let mut broken_string = String::new();
 
-	broken_string += &format!(" {pkg} :");
+    broken_string += &format!(" {pkg} :");
 
-	// Pick the proper version based on now status.
-	// else Return with just the package name like Apt does.
-	let Some(ver) = (match now {
-		true => pkg.installed(),
-		false => pkg.install_version(),
-	}) else {
-		broken_string += "\n";
-		return Some(broken_string);
-	};
+    // Pick the proper version based on now status.
+    // else Return with just the package name like Apt does.
+    let Some(ver) = (match now {
+        true => pkg.installed(),
+        false => pkg.install_version(),
+    }) else {
+        broken_string += "\n";
+        return Some(broken_string);
+    };
 
-	let indent = pkg.name().len() + 3;
-	let mut first = true;
+    let indent = pkg.name().len() + 3;
+    let mut first = true;
 
-	// ShowBrokenDeps
-	for dep in ver.depends_map().values().flatten() {
-		for (i, base_dep) in dep.iter().enumerate() {
-			if !cache.depcache().is_important_dep(base_dep) {
-				continue;
-			}
+    // ShowBrokenDeps
+    for dep in ver.depends_map().values().flatten() {
+        for (i, base_dep) in dep.iter().enumerate() {
+            if !cache.depcache().is_important_dep(base_dep) {
+                continue;
+            }
 
-			let dep_flag = if now { DepFlags::DepGNow } else { DepFlags::DepInstall };
+            let dep_flag = if now {
+                DepFlags::DepGNow
+            } else {
+                DepFlags::DepInstall
+            };
 
-			if cache.depcache().dep_state(base_dep) & dep_flag == dep_flag {
-				continue;
-			}
+            if cache.depcache().dep_state(base_dep) & dep_flag == dep_flag {
+                continue;
+            }
 
-			if !first {
-				broken_string += &" ".repeat(indent);
-			}
-			first = false;
+            if !first {
+                broken_string += &" ".repeat(indent);
+            }
+            first = false;
 
-			// If it's the first or Dep
-			if i > 0 {
-				broken_string += &" ".repeat(base_dep.dep_type().as_ref().len() + 3);
-			} else {
-				broken_string += &format!(" {}: ", base_dep.dep_type())
-			}
+            // If it's the first or Dep
+            if i > 0 {
+                broken_string += &" ".repeat(base_dep.dep_type().as_ref().len() + 3);
+            } else {
+                broken_string += &format!(" {}: ", base_dep.dep_type())
+            }
 
-			broken_string += base_dep.target_package().name();
+            broken_string += base_dep.target_package().name();
 
-			if let (Ok(ver_str), Some(comp)) = (base_dep.target_ver(), base_dep.comp_type()) {
-				broken_string += &format!(" ({comp} {ver_str})");
-			}
+            if let (Ok(ver_str), Some(comp)) = (base_dep.target_ver(), base_dep.comp_type()) {
+                broken_string += &format!(" ({comp} {ver_str})");
+            }
 
-			let target = base_dep.target_package();
-			if !target.has_provides() {
-				if let Some(target_ver) = target.install_version() {
-					broken_string += &format!(" but {target_ver} is to be installed")
-				} else if target.candidate().is_some() {
-					broken_string += " but it is not going to be installed";
-				} else if target.has_provides() {
-					broken_string += " but it is a virtual package";
-				} else {
-					broken_string += " but it is not installable";
-				}
-			}
+            let target = base_dep.target_package();
+            if !target.has_provides() {
+                if let Some(target_ver) = target.install_version() {
+                    broken_string += &format!(" but {target_ver} is to be installed")
+                } else if target.candidate().is_some() {
+                    broken_string += " but it is not going to be installed";
+                } else if target.has_provides() {
+                    broken_string += " but it is a virtual package";
+                } else {
+                    broken_string += " but it is not installable";
+                }
+            }
 
-			if i + 1 != dep.len() {
-				broken_string += " or"
-			}
-			broken_string += "\n";
-		}
-	}
-	Some(broken_string)
+            if i + 1 != dep.len() {
+                broken_string += " or"
+            }
+            broken_string += "\n";
+        }
+    }
+    Some(broken_string)
 }
 
 #[cxx::bridge]
 pub(crate) mod raw {
-	unsafe extern "C++" {
-		include!("oma-apt/apt-pkg-c/util.h");
+    unsafe extern "C++" {
+        include!("oma-apt/apt-pkg-c/util.h");
 
-		/// Compares two package versions, `ver1` and `ver2`. The returned
-		/// integer's value is mapped to one of the following integers:
-		/// - Less than 0: `ver1` is less than `ver2`.
-		/// - Equal to 0: `ver1` is equal to `ver2`.
-		/// - Greater than 0: `ver1` is greater than `ver2`.
-		///
-		/// Unless you have a specific need for otherwise, you should probably
-		/// use [`crate::util::cmp_versions`] instead.
-		pub fn cmp_versions(ver1: &str, ver2: &str) -> i32;
+        /// Compares two package versions, `ver1` and `ver2`. The returned
+        /// integer's value is mapped to one of the following integers:
+        /// - Less than 0: `ver1` is less than `ver2`.
+        /// - Equal to 0: `ver1` is equal to `ver2`.
+        /// - Greater than 0: `ver1` is greater than `ver2`.
+        ///
+        /// Unless you have a specific need for otherwise, you should probably
+        /// use [`crate::util::cmp_versions`] instead.
+        pub fn cmp_versions(ver1: &str, ver2: &str) -> i32;
 
-		pub fn quote_string(string: &str, bad: String) -> String;
+        pub fn quote_string(string: &str, bad: String) -> String;
 
-		/// Return an APT-styled progress bar (`[####..]`).
-		pub fn get_apt_progress_string(percent: f32, output_width: u32) -> String;
+        /// Return an APT-styled progress bar (`[####..]`).
+        pub fn get_apt_progress_string(percent: f32, output_width: u32) -> String;
 
-		/// Lock the lockfile.
-		pub fn apt_lock() -> Result<()>;
+        /// Lock the lockfile.
+        pub fn apt_lock() -> Result<()>;
 
-		/// Unock the lockfile.
-		pub fn apt_unlock();
+        /// Unock the lockfile.
+        pub fn apt_unlock();
 
-		/// Lock the Dpkg lockfile.
-		pub fn apt_lock_inner() -> Result<()>;
+        /// Lock the Dpkg lockfile.
+        pub fn apt_lock_inner() -> Result<()>;
 
-		/// Unlock the Dpkg lockfile.
-		pub fn apt_unlock_inner();
+        /// Unlock the Dpkg lockfile.
+        pub fn apt_unlock_inner();
 
-		/// Check if the lockfile is locked.
-		pub fn apt_is_locked() -> bool;
-	}
+        /// Check if the lockfile is locked.
+        pub fn apt_is_locked() -> bool;
+    }
 }

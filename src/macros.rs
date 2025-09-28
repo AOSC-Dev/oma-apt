@@ -29,11 +29,13 @@
 ///
 /// Returns [`Result<rust_apt::cache::Cache, rust_apt::error::AptErrors>`]
 macro_rules! new_cache {
-	() => {{
-		let files: Vec<String> = Vec::new();
-		$crate::cache::Cache::new(&files)
-	}};
-	($slice:expr) => {{ $crate::cache::Cache::new($slice) }};
+    () => {{
+        let files: Vec<String> = Vec::new();
+        $crate::cache::Cache::new(&files)
+    }};
+    ($slice:expr) => {{
+        $crate::cache::Cache::new($slice)
+    }};
 }
 
 /// Implements RawIter trait for raw apt iterators

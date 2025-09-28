@@ -6,14 +6,14 @@ use std::path::Path;
 
 use cxx::{Exception, UniquePtr};
 
-use crate::config::{init_config_system, Config};
+use crate::config::{Config, init_config_system};
 use crate::depcache::DepCache;
-use crate::error::{pending_error, AptErrors};
+use crate::error::{AptErrors, pending_error};
 use crate::pkgmanager::raw::OrderResult;
 use crate::progress::{AcquireProgress, InstallProgress, OperationProgress};
 use crate::raw::{
-    create_cache, create_pkgmanager, create_problem_resolver, IntoRawIter, IterPkgIterator,
-    PackageManager, PkgCacheFile, PkgIterator, ProblemResolver,
+    IntoRawIter, IterPkgIterator, PackageManager, PkgCacheFile, PkgIterator, ProblemResolver,
+    create_cache, create_pkgmanager, create_problem_resolver,
 };
 use crate::records::{PackageRecords, SourceRecords};
 use crate::util::{apt_lock, apt_unlock, apt_unlock_inner};
@@ -252,7 +252,7 @@ impl Cache {
     }
 
     /// Iterate through the packages in a random order
-    pub fn iter(&self) -> CacheIter {
+    pub fn iter(&self) -> CacheIter<'_> {
         CacheIter {
             pkgs: unsafe { self.begin().raw_iter() },
             cache: self,
@@ -260,7 +260,7 @@ impl Cache {
     }
 
     /// An iterator of packages in the cache.
-    pub fn packages(&self, sort: &PackageSort) -> impl Iterator<Item = Package> {
+    pub fn packages(&self, sort: &PackageSort) -> impl Iterator<Item = Package<'_>> {
         let mut pkg_list = vec![];
         for pkg in self.raw_pkgs() {
             match sort.virtual_pkgs {
@@ -643,7 +643,7 @@ impl Cache {
     /// `cache.get("apt")` Returns a Package object for the native arch.
     ///
     /// `cache.get("apt:i386")` Returns a Package object for the i386 arch
-    pub fn get(&self, name: &str) -> Option<Package> {
+    pub fn get(&self, name: &str) -> Option<Package<'_>> {
         Some(Package::new(self, unsafe {
             self.find_pkg(name).make_safe()?
         }))
@@ -655,7 +655,7 @@ impl Cache {
     /// # sort_name:
     /// * [`true`] = Packages will be in alphabetical order
     /// * [`false`] = Packages will not be sorted by name
-    pub fn get_changes(&self, sort_name: bool) -> impl Iterator<Item = Package> {
+    pub fn get_changes(&self, sort_name: bool) -> impl Iterator<Item = Package<'_>> {
         let mut changed = Vec::new();
         let depcache = self.depcache();
 

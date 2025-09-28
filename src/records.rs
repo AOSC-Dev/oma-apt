@@ -152,7 +152,7 @@ impl PackageRecords {
         true
     }
 
-    fn parser(&self) -> Ref<UniquePtr<raw::Parser>> {
+    fn parser(&self) -> Ref<'_, UniquePtr<raw::Parser>> {
         if self.parser.borrow().is_null() {
             panic!("You must call ver_lookup or desc_lookup first!")
         }
@@ -227,7 +227,7 @@ impl SourceRecords {
     ///     println!("{}", record.package());
     /// }
     /// ```
-    pub fn lookup(&self, name: String, src_only: bool) -> Option<SourceParser> {
+    pub fn lookup(&self, name: String, src_only: bool) -> Option<SourceParser<'_>> {
         unsafe {
             self.parser.replace(self.ptr.find(name, src_only));
         }

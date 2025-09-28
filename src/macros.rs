@@ -33,9 +33,7 @@ macro_rules! new_cache {
         let files: Vec<String> = Vec::new();
         $crate::cache::Cache::new(&files)
     }};
-    ($slice:expr) => {{
-        $crate::cache::Cache::new($slice)
-    }};
+    ($slice:expr) => {{ $crate::cache::Cache::new($slice) }};
 }
 
 /// Implements RawIter trait for raw apt iterators

@@ -59,10 +59,12 @@ mod config {
         assert_eq!(config.int("APT::Install-Suggests", 20), 0);
 
         // Directory is different in CI. Just check for the name
-        assert!(config
-            .file("Dir::Cache::pkgcache", "")
-            .split('/')
-            .any(|x| x == "pkgcache.bin"));
+        assert!(
+            config
+                .file("Dir::Cache::pkgcache", "")
+                .split('/')
+                .any(|x| x == "pkgcache.bin")
+        );
         assert_eq!(
             config.dir("Dir::Etc::sourceparts", ""),
             "/etc/apt/sources.list.d/"
@@ -100,14 +102,16 @@ mod config {
     fn get_architectures() {
         let config = Config::new();
 
-        let output = dbg!(String::from_utf8(
-            Command::new("dpkg")
-                .arg("--print-architecture")
-                .output()
-                .unwrap()
-                .stdout,
-        )
-        .unwrap());
+        let output = dbg!(
+            String::from_utf8(
+                Command::new("dpkg")
+                    .arg("--print-architecture")
+                    .output()
+                    .unwrap()
+                    .stdout,
+            )
+            .unwrap()
+        );
 
         let arches = dbg!(config.get_architectures());
 

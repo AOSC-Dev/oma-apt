@@ -4,9 +4,9 @@ mod cache {
 
     use cxx::{CxxVector, UniquePtr};
     use oma_apt::cache::*;
-    use oma_apt::raw::{create_acquire, IntoRawIter, ItemDesc};
+    use oma_apt::raw::{IntoRawIter, ItemDesc, create_acquire};
     use oma_apt::util::*;
-    use oma_apt::{new_cache, DepType};
+    use oma_apt::{DepType, new_cache};
 
     // This is a manual test. I don't know a good way to dynamically test this
     // Maybe by installing a test-deb with certain depends and checking the
@@ -187,8 +187,8 @@ mod cache {
         // Only test the candidate.
         // It's possible for the installed version to have no uris
         let cand = pkg.candidate().unwrap();
-        assert!(cand.uris().next().is_some());
-        dbg!(cand.uris().collect::<Vec<_>>());
+        assert!(cand.uris().iter().next().is_some());
+        dbg!(cand.uris());
     }
 
     #[test]

@@ -45,11 +45,13 @@ mod records {
         }
 
         dbg!(cache.get("apt").unwrap().changelog_uri().unwrap());
-        dbg!(cache
-            .get("librust-rust-apt-dev")
-            .unwrap()
-            .changelog_uri()
-            .unwrap());
+        dbg!(
+            cache
+                .get("librust-rust-apt-dev")
+                .unwrap()
+                .changelog_uri()
+                .unwrap()
+        );
         dbg!(cache.get("libgc-dev").unwrap().changelog_uri().unwrap());
     }
 }

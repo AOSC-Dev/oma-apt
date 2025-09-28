@@ -99,6 +99,16 @@ Vec<String> get_architectures() {
 	return rust_vector;
 }
 
+Vec<String> get_compression_types() {
+	Vec<String> rust_vector;
+
+	for (const std::string& str : APT::Configuration::getCompressionTypes()) {
+		rust_vector.push_back(str);
+	}
+
+	return rust_vector;
+}
+
 /// Set the given key to the specified value.
 void set(String key, String value) { _config->Set(key.c_str(), value.c_str()); }
 

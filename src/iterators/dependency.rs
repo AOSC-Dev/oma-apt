@@ -174,7 +174,7 @@ impl fmt::Display for BaseDep<'_> {
 
 impl fmt::Debug for BaseDep<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		let parent = unsafe { self.parent_pkg() };
+        let parent = unsafe { self.parent_pkg() };
         f.debug_struct("BaseDep")
             .field("parent", &parent.name())
             .field("name", &self.name())

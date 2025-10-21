@@ -69,6 +69,21 @@
         "optional": "cpp",
         "format": "cpp",
         "iomanip": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "any": "cpp",
+        "hash_map": "cpp",
+        "bitset": "cpp",
+        "cfenv": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "coroutine": "cpp",
+        "source_location": "cpp",
+        "ranges": "cpp",
+        "stdfloat": "cpp",
+        "text_encoding": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "queue": "cpp",
+        "stack": "cpp"
     },
 }

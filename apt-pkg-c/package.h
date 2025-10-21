@@ -17,7 +17,7 @@ struct DepIterator : public pkgCache::DepIterator {
 	u8 dep_type() const { return (*this)->Type; }
 	str comp_type() const { return handle_str(this->CompType()); }
 	str target_ver() const { return handle_str(this->TargetVer()); }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return this->Index(); }
 
 	inline bool or_dep() const {
 		return ((*this)->CompareOp & pkgCache::Dep::Or) == pkgCache::Dep::Or;
@@ -28,7 +28,7 @@ struct DepIterator : public pkgCache::DepIterator {
 	UniquePtr<VerIterator> parent_ver() const;
 	UniquePtr<std::vector<VerIterator>> all_targets() const;
 
-	DepIterator(const pkgCache::DepIterator& base) : pkgCache::DepIterator(base){};
+	DepIterator(const pkgCache::DepIterator& base) : pkgCache::DepIterator(base) {};
 };
 
 struct PrvIterator : public pkgCache::PrvIterator {
@@ -36,14 +36,14 @@ struct PrvIterator : public pkgCache::PrvIterator {
 
 	str name() const { return this->Name(); }
 	str version_str() const { return handle_str(this->ProvideVersion()); }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return this->Index(); }
 
 	UniquePtr<PkgIterator> target_pkg() const;
 	UniquePtr<VerIterator> target_ver() const;
 
 	UniquePtr<PrvIterator> unique() const { return std::make_unique<PrvIterator>(*this); }
 
-	PrvIterator(const pkgCache::PrvIterator& base) : pkgCache::PrvIterator(base){};
+	PrvIterator(const pkgCache::PrvIterator& base) : pkgCache::PrvIterator(base) {};
 };
 
 struct PkgFileIterator : public pkgCache::PkgFileIterator {
@@ -58,18 +58,18 @@ struct PkgFileIterator : public pkgCache::PkgFileIterator {
 	str component() const { return handle_str(this->Component()); }
 	str arch() const { return handle_str(this->Architecture()); }
 	str index_type() const { return handle_str(this->IndexType()); }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return this->Index(); }
 
 	bool is_downloadable() const { return !this->Flagged(pkgCache::Flag::NotSource); }
 
 	UniquePtr<PkgFileIterator> unique() const { return std::make_unique<PkgFileIterator>(*this); }
 
-	PkgFileIterator(const pkgCache::PkgFileIterator& base) : pkgCache::PkgFileIterator(base){};
+	PkgFileIterator(const pkgCache::PkgFileIterator& base) : pkgCache::PkgFileIterator(base) {};
 };
 
 struct VerFileIterator : public pkgCache::VerFileIterator {
 	void raw_next() { (*this)++; }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return static_cast<std::size_t>(this->Index()); }
 
 	UniquePtr<VerFileIterator> unique() const { return std::make_unique<VerFileIterator>(*this); }
 
@@ -77,16 +77,16 @@ struct VerFileIterator : public pkgCache::VerFileIterator {
 		return std::make_unique<PkgFileIterator>(this->File());
 	};
 
-	VerFileIterator(const pkgCache::VerFileIterator& base) : pkgCache::VerFileIterator(base){};
+	VerFileIterator(const pkgCache::VerFileIterator& base) : pkgCache::VerFileIterator(base) {};
 };
 
 struct DescIterator : public pkgCache::DescIterator {
 	void raw_next() { (*this)++; }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return static_cast<std::size_t>(this->Index()); }
 
 	UniquePtr<DescIterator> unique() const { return std::make_unique<DescIterator>(*this); }
 
-	DescIterator(const pkgCache::DescIterator& base) : pkgCache::DescIterator(base){};
+	DescIterator(const pkgCache::DescIterator& base) : pkgCache::DescIterator(base) {};
 };
 
 struct VerIterator : public pkgCache::VerIterator {
@@ -104,7 +104,7 @@ struct VerIterator : public pkgCache::VerIterator {
 	str multi_arch_type() const { return this->MultiArchType(); }
 	// TODO: Move this into rust?
 	bool is_installed() const { return this->ParentPkg().CurrentVer() == *this; }
-        std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return this->Index(); }
 
 	UniquePtr<PkgIterator> parent_pkg() const;
 
@@ -129,9 +129,8 @@ struct VerIterator : public pkgCache::VerIterator {
 
 	UniquePtr<VerIterator> unique() const { return std::make_unique<VerIterator>(*this); }
 
-	VerIterator(const pkgCache::VerIterator& base) : pkgCache::VerIterator(base){};
+	VerIterator(const pkgCache::VerIterator& base) : pkgCache::VerIterator(base) {};
 };
-
 
 struct PkgIterator : public pkgCache::PkgIterator {
 	void raw_next() { (*this)++; }
@@ -142,7 +141,7 @@ struct PkgIterator : public pkgCache::PkgIterator {
 	u8 current_state() const { return (*this)->CurrentState; }
 	u8 inst_state() const { return (*this)->InstState; }
 	u8 selected_state() const { return (*this)->SelectedState; }
-	std::size_t index() const { return this->Index(); }
+	rust::usize index() const { return this->Index(); }
 
 	/// True if the package is essential.
 	bool is_essential() const { return ((*this)->Flags & pkgCache::Flag::Essential) != 0; }
@@ -165,7 +164,7 @@ struct PkgIterator : public pkgCache::PkgIterator {
 
 	UniquePtr<PkgIterator> unique() const { return std::make_unique<PkgIterator>(*this); }
 
-	PkgIterator(const pkgCache::PkgIterator& base) : pkgCache::PkgIterator(base){};
+	PkgIterator(const pkgCache::PkgIterator& base) : pkgCache::PkgIterator(base) {};
 };
 
 inline UniquePtr<PkgIterator> PrvIterator::target_pkg() const {

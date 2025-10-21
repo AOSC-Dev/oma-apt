@@ -93,7 +93,6 @@ pub(crate) mod raw {
         /// The returned UniquePtr cannot outlive the cache.
         unsafe fn target_ver(self: &PrvIterator) -> UniquePtr<VerIterator>;
 
-        #[cxx_name = "Index"]
         pub fn index(self: &PrvIterator) -> usize;
         /// Clone the pointer.
         ///

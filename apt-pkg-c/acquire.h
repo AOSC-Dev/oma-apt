@@ -65,8 +65,14 @@ struct AcqWorker {
 	pkgAcquire::ItemDesc* item_desc;
 
 	String status() const { return ptr->Status; }
+
+#if APT_PKG_MAJOR < 6
+	u64 current_size() const { return ptr->CurrentSize; }
+	u64 total_size() const { return ptr->TotalSize; }
+#else
 	u64 current_size() const { return ptr->CurrentItem->CurrentSize; }
 	u64 total_size() const { return ptr->CurrentItem->TotalSize; }
+#endif
 
 	UniquePtr<ItemDesc> item() const {
 		if (ptr->CurrentItem == 0) { throw std::runtime_error("Null Item!"); }
@@ -84,7 +90,7 @@ struct AcqTextStatus : public pkgAcquireStatus {
 	void AssignItemID(pkgAcquire::ItemDesc& Itm) {
 		if (Itm.Owner->ID == 0) Itm.Owner->ID = ID++;
 	};
-
+#if APT_PKG_MAJOR > 5 || (APT_PKG_MAJOR == 5 && APT_PKG_RELEASE >= 2)
 	bool ReleaseInfoChanges(
 		metaIndex const* const LastRelease,
 		metaIndex const* const CurrentRelease,
@@ -112,6 +118,7 @@ struct AcqTextStatus : public pkgAcquireStatus {
 		// Not yet implemented. Remove return true when it is.
 		return true;
 	};
+#endif
 	bool MediaChange(std::string Media, std::string Drive) {
 		(void)Drive;
 		(void)Media;

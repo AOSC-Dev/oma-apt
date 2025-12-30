@@ -1,5 +1,6 @@
 mod depcache {
     use oma_apt::cache::Upgrade;
+    use oma_apt::config::Config;
     use oma_apt::new_cache;
 
     #[test]
@@ -53,6 +54,40 @@ mod depcache {
         // Occasionally manually compare the output to apt full-upgrade.
         let cache = new_cache!().unwrap();
         cache.upgrade(Upgrade::FullUpgrade).unwrap();
+
+        for pkg in cache.get_changes(true) {
+            if pkg.marked_install() {
+                println!("{} is marked install", pkg.name());
+                // If the package is marked install then it will also
+                // show up as marked upgrade, downgrade etc.
+                // Check this first and continue.
+                continue;
+            }
+            if pkg.marked_upgrade() {
+                println!("{} is marked upgrade", pkg.name())
+            }
+            if pkg.marked_delete() {
+                println!("{} is marked remove", pkg.name())
+            }
+            if pkg.marked_reinstall() {
+                println!("{} is marked reinstall", pkg.name())
+            }
+            if pkg.marked_downgrade() {
+                println!("{} is marked downgrade", pkg.name())
+            }
+        }
+    }
+
+	#[test]
+    fn upgrade_v3() {
+        // There isn't a great way to test if upgrade is working properly
+        // as this is dynamic depending on the system.
+        // This test will always pass, but print the status of the changes.
+        // Occasionally manually compare the output to apt full-upgrade.
+        let cache = new_cache!().unwrap();
+        cache.upgrade(Upgrade::FullUpgrade).unwrap();
+
+		Config::new().set("APT::Solver", "3.0");
 
         for pkg in cache.get_changes(true) {
             if pkg.marked_install() {

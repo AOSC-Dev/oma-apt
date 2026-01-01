@@ -38,6 +38,26 @@ pub enum Upgrade {
     SafeUpgrade = 3,
 }
 
+impl Upgrade {
+    pub fn to_edsp(&self) -> i32 {
+        match self {
+            Upgrade::FullUpgrade => Edsp::UpgradeAll as i32,
+            Upgrade::Upgrade => Edsp::UpgradeAll as i32 | Edsp::ForbidRemove as i32,
+            Upgrade::SafeUpgrade => {
+                Edsp::UpgradeAll as i32 | Edsp::ForbidNewInstall as i32 | Edsp::ForbidRemove as i32
+            }
+        }
+    }
+}
+
+#[allow(dead_code)]
+enum Edsp {
+    Autoremove = 1 << 0,
+    UpgradeAll = 1 << 1,
+    ForbidNewInstall = 1 << 2,
+    ForbidRemove = 1 << 3,
+}
+
 /// Selection of how to sort
 enum Sort {
     /// Disable the sort method.
@@ -422,9 +442,18 @@ impl Cache {
     /// ```
     pub fn upgrade(&self, upgrade_type: Upgrade) -> Result<(), AptErrors> {
         let mut progress = OperationProgress::quiet();
-        Ok(self
-            .depcache()
-            .upgrade(progress.pin().as_mut(), upgrade_type as i32)?)
+
+        let solver = Config::new().find("APT::Solver", "internal");
+
+        if solver == "internal" {
+            Ok(self
+                .depcache()
+                .upgrade(progress.pin().as_mut(), upgrade_type as i32)?)
+        } else {
+            Ok(self
+                .depcache()
+                .resolve_by_edsp(progress.pin().as_mut(), upgrade_type.to_edsp())?)
+        }
     }
 
     /// Resolve dependencies with the changes marked on all packages. This marks

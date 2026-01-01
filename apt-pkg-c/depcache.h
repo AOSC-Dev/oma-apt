@@ -203,4 +203,14 @@ struct PkgDepCache {
 	}
 
 	PkgDepCache(pkgDepCache* DepCache) : ptr(DepCache){};
+
+	void resolve_by_edsp(
+		OperationProgress& callback,
+		int edsp
+	) const {
+		OpProgressWrapper op_progress(callback);
+		std::string const solver = _config->Find("APT::Solver", "internal");
+		EDSP::ResolveExternal(solver.c_str(), *ptr, edsp, &op_progress);
+		handle_errors();
+	}
 };

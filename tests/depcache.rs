@@ -1,7 +1,7 @@
 mod depcache {
     use oma_apt::cache::Upgrade;
     use oma_apt::config::Config;
-    use oma_apt::new_cache;
+    use oma_apt::{PackageSort, new_cache};
 
     #[test]
     fn mark_reinstall() {
@@ -78,16 +78,17 @@ mod depcache {
         }
     }
 
-	#[test]
+    #[test]
     fn upgrade_v3() {
         // There isn't a great way to test if upgrade is working properly
         // as this is dynamic depending on the system.
         // This test will always pass, but print the status of the changes.
         // Occasionally manually compare the output to apt full-upgrade.
         let cache = new_cache!().unwrap();
-        cache.upgrade(Upgrade::FullUpgrade).unwrap();
 
-		Config::new().set("APT::Solver", "3.0");
+        Config::new().set("APT::Solver", "3.0");
+
+        cache.upgrade(Upgrade::FullUpgrade).unwrap();
 
         for pkg in cache.get_changes(true) {
             if pkg.marked_install() {
@@ -108,6 +109,32 @@ mod depcache {
             }
             if pkg.marked_downgrade() {
                 println!("{} is marked downgrade", pkg.name())
+            }
+        }
+    }
+
+    #[test]
+    fn upgrade_for_phasing() {
+        // There isn't a great way to test if upgrade is working properly
+        // as this is dynamic depending on the system.
+        // This test will always pass, but print the status of the changes.
+        // Occasionally manually compare the output to apt full-upgrade.
+        let cache = new_cache!().unwrap();
+
+        Config::new().set("APT::Solver", "3.0");
+
+        cache.upgrade(Upgrade::FullUpgrade).unwrap();
+
+        let mut phasing_pkgs = vec![];
+        let mut not_phasing_kept_back = vec![];
+
+        for pkg in cache.packages(&PackageSort::default().upgradable()) {
+            if !pkg.marked_upgrade() {
+                if cache.depcache().phasing_applied(&pkg) {
+                    phasing_pkgs.push(pkg);
+                } else {
+                    not_phasing_kept_back.push(pkg);
+                }
             }
         }
     }

@@ -213,4 +213,12 @@ struct PkgDepCache {
 		EDSP::ResolveExternal(solver.c_str(), *ptr, edsp, &op_progress);
 		handle_errors();
 	}
+
+	bool phasing_applied(const PkgIterator& pkg) const {
+		#if APT_PKG_MAJOR > 6
+			return ptr->PhasingApplied(pkg);
+		#else
+			return false;
+		#endif
+	}
 };

@@ -329,6 +329,6 @@ pub(crate) mod raw {
 			edsp: i32,
 		) -> Result<()>;
 
-		pub fn phasing_applied(self: &PkgDepCache, pkg: &PkgIterator) -> bool;
+		pub fn phasing_applied(self: &PkgDepCache, pkg: &PkgIterator) -> Result<bool>;
     }
 }

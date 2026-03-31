@@ -49,19 +49,31 @@ jobs:
             "debian:11",
             "debian:12",
             "debian:13",
+            "i386/debian:10",
+            "i386/debian:11",
+            "i386/debian:12",
+            "i386/debian:13",
           ]
     container:
       image: "${{ matrix.target }}"
     steps:
       - name: Edit Sources.list
-        if: ${{ matrix.target == 'debian:10' }}
+        if: ${{ matrix.target == 'debian:10' || matrix.target == 'i386/debian:10' }}
         run: echo "deb http://archive.debian.org/debian/ buster main contrib non-free\ndeb http://archive.debian.org/debian/ buster-updates main contrib non-free\ndeb http://archive.debian.org/debian-security buster/updates main contrib non-free\ndeb http://archive.debian.org/debian/ buster-backports main contrib non-free" > /etc/apt/sources.list
       - name: Install Dependency
         run: apt-get -y update && apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
+        if: ${{ !contains(matrix.target, 'i386') }}
         with:
             toolchain: stable
             override: true
+      - name: Install Rust for i386
+        if: ${{ contains(matrix.target, 'i386') }}
+        run: curl -sL https://sh.rustup.rs | linux32 sh -s -- -y --default-toolchain stable
+      - name: Build (i386)
+        if: ${{ contains(matrix.target, 'i386') }}
+        run: /$HOME/.cargo/bin/cargo build
       - name: Build
+        if: ${{ !contains(matrix.target, 'i386') }}
         run: cargo build

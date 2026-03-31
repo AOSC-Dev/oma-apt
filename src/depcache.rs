@@ -318,17 +318,17 @@ pub(crate) mod raw {
         /// minus the Installed-Size of all packages for removal."
         pub fn disk_size(self: &PkgDepCache) -> i64;
 
-		/// Resolve problems using an external solver based on an EDSP code.
-		/// ## edsp:
-		///  * [int] = The EDSP code to resolve.
-		/// ## cache:
-		/// * [&PkgDepCache] = The dependency cache to resolve.
-		pub fn resolve_by_edsp(
-			self: &PkgDepCache,
-			op_progress: Pin<&mut OperationProgress>,
-			edsp: i32,
-		) -> Result<()>;
+        /// Resolve problems using an external solver based on an EDSP code.
+        /// ## edsp:
+        ///  * [int] = The EDSP code to resolve.
+        /// ## cache:
+        /// * [&PkgDepCache] = The dependency cache to resolve.
+        pub fn resolve_by_edsp(
+            self: &PkgDepCache,
+            op_progress: Pin<&mut OperationProgress>,
+            edsp: i32,
+        ) -> Result<()>;
 
-		pub fn phasing_applied(self: &PkgDepCache, pkg: &PkgIterator) -> Result<bool>;
+        pub fn phasing_applied(self: &PkgDepCache, pkg: &PkgIterator) -> Result<bool>;
     }
 }

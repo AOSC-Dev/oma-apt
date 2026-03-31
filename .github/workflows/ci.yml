@@ -73,8 +73,6 @@ jobs:
         run: curl -sL https://sh.rustup.rs | linux32 sh -s -- -y --default-toolchain stable
       - name: Build (i386)
         if: ${{ contains(matrix.target, 'i386') }}
-        env:
-          PATH: $HOME/.cargo/bin:$PATH
-        run: cargo build
+        run: /root/.cargo/bin/cargo build
       - name: Build
         run: cargo build

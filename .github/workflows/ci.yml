@@ -33,7 +33,7 @@ jobs:
             components: clippy
             override: true
       - name: Install Dependency
-        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm
+        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,6 +59,6 @@ jobs:
             toolchain: stable
             override: true
       - name: Install Dependency
-        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm
+        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - name: Build
         run: cargo build

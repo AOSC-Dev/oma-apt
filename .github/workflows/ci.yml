@@ -1,0 +1,67 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "*" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Install stable toolchain with rustfmt available
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Check format
+        run: cargo fmt --check
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Dependency
+        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            components: clippy
+            override: true
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check clippy
+        run: cargo clippy -- -D warnings
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          [
+            "debian:10",
+            "debian:11",
+            "debian:12",
+            "debian:13",
+          ]
+    container:
+      image: "${{ matrix.target }}"
+    steps:
+      - name: Edit Sources.list
+        if: ${{ matrix.target == 'debian:10' }}
+        run: echo "deb http://archive.debian.org/debian/ buster main contrib non-free\ndeb http://archive.debian.org/debian/ buster-updates main contrib non-free\ndeb http://archive.debian.org/debian-security buster/updates main contrib non-free\ndeb http://archive.debian.org/debian/ buster-backports main contrib non-free" > /etc/apt/sources.list
+      - name: Install Dependency
+        run: apt-get -y update && apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+      - name: Build
+        run: cargo build

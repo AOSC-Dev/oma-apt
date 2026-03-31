@@ -75,4 +75,5 @@ jobs:
         if: ${{ contains(matrix.target, 'i386') }}
         run: /$HOME/.cargo/bin/cargo build
       - name: Build
+        if: ${{ !contains(matrix.target, 'i386') }}
         run: cargo build

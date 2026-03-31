@@ -26,11 +26,8 @@ jobs:
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - name: Edit Sources.list
-        if: ${{ matrix.target == 'debian:10' }}
-        run: echo "deb http://archive.debian.org/debian/ buster main contrib non-free\ndeb http://archive.debian.org/debian/ buster-updates main contrib non-free\ndeb http://archive.debian.org/debian-security buster/updates main contrib non-free\ndeb http://archive.debian.org/debian/ buster-backports main contrib non-free" > /etc/apt/sources.list
       - name: Install Dependency
-        run: apt-get -y update && apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
+        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:

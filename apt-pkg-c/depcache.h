@@ -202,15 +202,29 @@ struct PkgDepCache {
 		handle_errors();
 	}
 
-	PkgDepCache(pkgDepCache* DepCache) : ptr(DepCache){};
+	PkgDepCache(pkgDepCache* DepCache) : ptr(DepCache) {};
 
-	void resolve_by_edsp(
-		OperationProgress& callback,
-		int edsp
-	) const {
+	void resolve_by_edsp(OperationProgress& callback, int edsp) const {
 		OpProgressWrapper op_progress(callback);
 		std::string const solver = _config->Find("APT::Solver", "internal");
 		EDSP::ResolveExternal(solver.c_str(), *ptr, edsp, &op_progress);
 		handle_errors();
+	}
+
+	bool phasing_applied(const PkgIterator& pkg) const {
+#if APT_PKG_MAJOR > 6
+		return ptr->PhasingApplied(pkg);
+#elif APT_PKG_MAJOR == 6
+		/// FIXME: pkgDepCache::PhasingApplied() was implemented with later
+		/// revisions of libapt-pkg6 (some time during APT 2.7's development).
+		/// However, the upstream never cared to distinguish ABI versions with or
+		/// without this function (all were 6.0.0).
+		///
+		/// Treating all libapt-pkg6 frontends as incapable. Not perfect and there
+		/// are perhaps more accurate ways to handle this.
+		throw std::runtime_error("phasing_applied may not be available in apt-pkg 6.");
+#else
+		throw std::runtime_error("phasing_applied is not available in apt-pkg versions below 6.");
+#endif
 	}
 };

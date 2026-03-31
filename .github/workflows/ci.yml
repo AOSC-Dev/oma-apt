@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Dependency
-        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
+        run: apt-get -y update && apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
@@ -54,7 +54,7 @@ jobs:
       image: "${{ matrix.target }}"
     steps:
       - name: Install Dependency
-        run: sudo apt-get -y update && sudo apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
+        run: apt-get -y update && apt-get -y install libapt-pkg-dev libclang-dev clang llvm curl
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:

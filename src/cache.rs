@@ -17,7 +17,7 @@ use crate::raw::{
 };
 use crate::records::{PackageRecords, SourceRecords};
 use crate::util::{apt_lock, apt_unlock, apt_unlock_inner};
-use crate::{Package, PkgSelectedState, PackageFile};
+use crate::{Package, PackageFile, PkgSelectedState};
 
 /// Selection of Upgrade type
 #[repr(i32)]
@@ -60,9 +60,9 @@ enum Edsp {
 
 #[derive(Clone, Debug)]
 pub struct PinnedPackage {
-	pub name: String,
-	pub version: String,
-	pub priority: i32,
+    pub name: String,
+    pub version: String,
+    pub priority: i32,
 }
 
 /// Selection of how to sort
@@ -286,50 +286,50 @@ impl Cache {
         }
     }
 
-	/// An iterator of package files used to build the cache.
-	pub fn package_files(&self) -> impl Iterator<Item = PackageFile<'_>> {
-		unsafe { self.file_begin().raw_iter() }.map(|file| PackageFile::new(file, self))
-	}
+    /// An iterator of package files used to build the cache.
+    pub fn package_files(&self) -> impl Iterator<Item = PackageFile<'_>> {
+        unsafe { self.file_begin().raw_iter() }.map(|file| PackageFile::new(file, self))
+    }
 
-	/// An iterator of pinned packages as shown in `apt-cache policy`.
-	pub fn pinned_packages(&self) -> impl Iterator<Item = PinnedPackage> + '_ {
-		self.iter().filter_map(|pkg| {
-			let cand = pkg.candidate()?;
-			let priority = cand.priority_with_files(false);
-			if priority == 0 {
-				return None;
-			}
+    /// An iterator of pinned packages as shown in `apt-cache policy`.
+    pub fn pinned_packages(&self) -> impl Iterator<Item = PinnedPackage> + '_ {
+        self.iter().filter_map(|pkg| {
+            let cand = pkg.candidate()?;
+            let priority = cand.priority_with_files(false);
+            if priority == 0 {
+                return None;
+            }
 
-			Some(PinnedPackage {
-				name: pkg.name().to_string(),
-				version: cand.version().to_string(),
-				priority,
-			})
-		})
-	}
+            Some(PinnedPackage {
+                name: pkg.name().to_string(),
+                version: cand.version().to_string(),
+                priority,
+            })
+        })
+    }
 
-	/// An iterator of packages in the cache.
-	pub fn packages(&self, sort: &PackageSort) -> impl Iterator<Item = Package<'_>> {
-		let mut pkg_list = vec![];
-		for pkg in self.raw_pkgs() {
-			match sort.virtual_pkgs {
-				// Virtual packages are enabled, include them.
-				// This works differently than the rest. I should probably change defaults.
-				Sort::Enable => {},
-				// If disabled and pkg has no versions, exclude
-				Sort::Disable => {
-					if unsafe { pkg.versions().end() } {
-						continue;
-					}
-				},
-				// If reverse and the package has versions, exclude
-				// This section is for if you only want virtual packages
-				Sort::Reverse => {
-					if unsafe { !pkg.versions().end() } {
-						continue;
-					}
-				},
-			}
+    /// An iterator of packages in the cache.
+    pub fn packages(&self, sort: &PackageSort) -> impl Iterator<Item = Package<'_>> {
+        let mut pkg_list = vec![];
+        for pkg in self.raw_pkgs() {
+            match sort.virtual_pkgs {
+                // Virtual packages are enabled, include them.
+                // This works differently than the rest. I should probably change defaults.
+                Sort::Enable => {}
+                // If disabled and pkg has no versions, exclude
+                Sort::Disable => {
+                    if unsafe { pkg.versions().end() } {
+                        continue;
+                    }
+                }
+                // If reverse and the package has versions, exclude
+                // This section is for if you only want virtual packages
+                Sort::Reverse => {
+                    if unsafe { !pkg.versions().end() } {
+                        continue;
+                    }
+                }
+            }
 
             match sort.upgradable {
                 // Virtual packages are enabled, include them.
@@ -804,28 +804,28 @@ pub(crate) mod raw {
         /// The priority of the Version as shown in `apt policy`.
         pub fn priority(self: &PkgCacheFile, version: &VerIterator) -> i32;
 
-		/// The priority of the Version as shown in `apt policy`.
-		///
-		/// When `consider_files` is `true`, this is equivalent to
-		/// [`crate::Version::priority`] and includes package-file priorities in
-		/// the result.
-		///
-		/// When `consider_files` is `false`, this returns only pin priority
-		/// without considering package-file priorities.
-		pub fn priority_with_files(
-			self: &PkgCacheFile,
-			version: &VerIterator,
-			consider_files: bool,
-		) -> i32;
+        /// The priority of the Version as shown in `apt policy`.
+        ///
+        /// When `consider_files` is `true`, this is equivalent to
+        /// [`crate::Version::priority`] and includes package-file priorities in
+        /// the result.
+        ///
+        /// When `consider_files` is `false`, this returns only pin priority
+        /// without considering package-file priorities.
+        pub fn priority_with_files(
+            self: &PkgCacheFile,
+            version: &VerIterator,
+            consider_files: bool,
+        ) -> i32;
 
-		/// Lookup the IndexFile of the Package file
-		///
-		/// # Safety
-		///
-		/// The IndexFile can not outlive PkgCacheFile.
-		///
-		/// The returned UniquePtr cannot outlive the cache.
-		unsafe fn find_index(self: &PkgCacheFile, file: &PkgFileIterator) -> UniquePtr<IndexFile>;
+        /// Lookup the IndexFile of the Package file
+        ///
+        /// # Safety
+        ///
+        /// The IndexFile can not outlive PkgCacheFile.
+        ///
+        /// The returned UniquePtr cannot outlive the cache.
+        unsafe fn find_index(self: &PkgCacheFile, file: &PkgFileIterator) -> UniquePtr<IndexFile>;
 
         /// Return a package by name and optionally architecture.
         ///
@@ -836,25 +836,25 @@ pub(crate) mod raw {
         ///
         /// The returned UniquePtr cannot outlive the cache.
         unsafe fn find_pkg(self: &PkgCacheFile, name: &str) -> UniquePtr<PkgIterator>;
-		/// Return the pointer to the start of the PkgIterator.
-		///
-		/// # Safety
-		///
-		/// If the Internal Pkg Pointer is NULL, operations can segfault.
-		/// You should call `raw_iter()` asap.
-		///
-		/// The returned UniquePtr cannot outlive the cache.
-		unsafe fn begin(self: &PkgCacheFile) -> UniquePtr<PkgIterator>;
+        /// Return the pointer to the start of the PkgIterator.
+        ///
+        /// # Safety
+        ///
+        /// If the Internal Pkg Pointer is NULL, operations can segfault.
+        /// You should call `raw_iter()` asap.
+        ///
+        /// The returned UniquePtr cannot outlive the cache.
+        unsafe fn begin(self: &PkgCacheFile) -> UniquePtr<PkgIterator>;
 
-		/// Return the pointer to the start of the PkgFileIterator list.
-		///
-		/// # Safety
-		///
-		/// The returned UniquePtr cannot outlive the cache.
-		unsafe fn file_begin(self: &PkgCacheFile) -> UniquePtr<PkgFileIterator>;
+        /// Return the pointer to the start of the PkgFileIterator list.
+        ///
+        /// # Safety
+        ///
+        /// The returned UniquePtr cannot outlive the cache.
+        unsafe fn file_begin(self: &PkgCacheFile) -> UniquePtr<PkgFileIterator>;
 
-		/// Return the priority for a PackageFile as shown in `apt-cache
-		/// policy`.
-		pub fn file_priority(self: &PkgCacheFile, file: &PkgFileIterator) -> i32;
-	}
+        /// Return the priority for a PackageFile as shown in `apt-cache
+        /// policy`.
+        pub fn file_priority(self: &PkgCacheFile, file: &PkgFileIterator) -> i32;
+    }
 }

@@ -130,11 +130,7 @@ mod depcache {
 
         for pkg in cache.packages(&PackageSort::default().upgradable()) {
             if !pkg.marked_upgrade() {
-                if cache
-                    .depcache()
-                    .phasing_applied(&pkg)
-                    .expect("libapt_pkg is too old to support phasing")
-                {
+                if let Ok(true) = cache.depcache().phasing_applied(&pkg) {
                     phasing_pkgs.push(pkg);
                 } else {
                     not_phasing_kept_back.push(pkg);

@@ -2,10 +2,21 @@
 #include <apt-pkg/cachefile.h>
 #include <apt-pkg/upgrade.h>
 #include <memory>
+#include <type_traits>
 #include "package.h"
 #include "util.h"
 
 #include "progress.h"
+
+template <typename T, typename P>
+auto check_phasing(const T* ptr, const P& pkg, int) -> decltype(ptr->PhasingApplied(pkg), bool()) {
+	return ptr->PhasingApplied(pkg);
+}
+
+template <typename T, typename P>
+bool check_phasing(const T*, const P&, long) {
+	throw std::runtime_error("This version of libapt-pkg6 does not support PhasingApplied.");
+}
 
 using ActionGroup = pkgDepCache::ActionGroup;
 
@@ -215,14 +226,7 @@ struct PkgDepCache {
 #if APT_PKG_MAJOR > 6
 		return ptr->PhasingApplied(pkg);
 #elif APT_PKG_MAJOR == 6
-		/// FIXME: pkgDepCache::PhasingApplied() was implemented with later
-		/// revisions of libapt-pkg6 (some time during APT 2.7's development).
-		/// However, the upstream never cared to distinguish ABI versions with or
-		/// without this function (all were 6.0.0).
-		///
-		/// Treating all libapt-pkg6 frontends as incapable. Not perfect and there
-		/// are perhaps more accurate ways to handle this.
-		throw std::runtime_error("phasing_applied may not be available in apt-pkg 6.");
+		return check_phasing(ptr, pkg, 0);
 #else
 		throw std::runtime_error("phasing_applied is not available in apt-pkg versions below 6.");
 #endif

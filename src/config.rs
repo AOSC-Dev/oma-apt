@@ -54,13 +54,13 @@ impl Config {
     ///
     /// If the value is a list, the entire list is cleared.
     /// If you need to clear 1 value from a list see `self.clear_value`
-    pub fn clear(&self, key: &str) {
+    pub fn clear(&self, key: impl ToString) {
         raw::clear(key.to_string());
     }
 
     /// Clear a single value from a list.
     /// Used for removing one item in an apt configuruation list
-    pub fn clear_value(&self, key: &str, value: &str) {
+    pub fn clear_value(&self, key: impl ToString, value: impl ToString) {
         raw::clear_value(key.to_string(), value.to_string());
     }
 
@@ -80,12 +80,12 @@ impl Config {
     /// Find a key and return it's value as a string.
     ///
     /// default is what will be returned if nothing is found.
-    pub fn find(&self, key: &str, default: &str) -> String {
+    pub fn find(&self, key: impl ToString, default: impl ToString) -> String {
         raw::find(key.to_string(), default.to_string())
     }
 
     /// Exactly like find but takes no default and returns an option instead.
-    pub fn get(&self, key: &str) -> Option<String> {
+    pub fn get(&self, key: impl ToString) -> Option<String> {
         let value = raw::find(key.to_string(), "".to_string());
         if value.is_empty() {
             return None;
@@ -103,7 +103,7 @@ impl Config {
     /// There is not much difference in `self.dir` and `self.file`
     ///
     /// `dir` will return with a trailing `/` where `file` will not.
-    pub fn file(&self, key: &str, default: &str) -> String {
+    pub fn file(&self, key: impl ToString, default: impl ToString) -> String {
         raw::find_file(key.to_string(), default.to_string())
     }
 
@@ -116,24 +116,24 @@ impl Config {
     /// There is not much difference in `self.dir` and `self.file`
     ///
     /// `dir` will return with a trailing `/` where `file` will not.
-    pub fn dir(&self, key: &str, default: &str) -> String {
+    pub fn dir(&self, key: impl ToString, default: impl ToString) -> String {
         raw::find_dir(key.to_string(), default.to_string())
     }
 
     /// Same as find, but for boolean values.
-    pub fn bool(&self, key: &str, default: bool) -> bool {
+    pub fn bool(&self, key: impl ToString, default: bool) -> bool {
         raw::find_bool(key.to_string(), default)
     }
 
     /// Same as find, but for i32 values.
-    pub fn int(&self, key: &str, default: i32) -> i32 {
+    pub fn int(&self, key: impl ToString, default: i32) -> i32 {
         raw::find_int(key.to_string(), default)
     }
 
     /// Return a vector for an Apt configuration list.
     ///
     /// An example of a common key that contains a list `raw::NeverAutoRemove`.
-    pub fn find_vector(&self, key: &str) -> Vec<String> {
+    pub fn find_vector(&self, key: impl ToString) -> Vec<String> {
         raw::find_vector(key.to_string())
     }
 
@@ -153,11 +153,11 @@ impl Config {
     }
 
     /// Set the given key to the specified value.
-    pub fn set(&self, key: &str, value: &str) {
+    pub fn set(&self, key: impl ToString, value: impl ToString) {
         raw::set(key.to_string(), value.to_string())
     }
 
-    pub fn tree(&self, key: &str) -> Option<ConfigTree> {
+    pub fn tree(&self, key: impl ToString) -> Option<ConfigTree> {
         let tree = unsafe { raw::tree(key.to_string()) };
         if tree.end() {
             return None;
@@ -187,8 +187,8 @@ impl Config {
     /// // Using "AptList" here will not work and will panic.
     /// config.set_vector("AptList", &apt_list);
     /// ```
-    pub fn set_vector(&self, key: &str, values: &Vec<&str>) {
-        let mut vec_key = String::from(key);
+    pub fn set_vector(&self, key: &str, values: &[impl ToString]) {
+        let mut vec_key = key.to_string();
         if !vec_key.ends_with("::") {
             vec_key.push_str("::");
         }

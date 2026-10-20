@@ -169,6 +169,9 @@ struct PkgDepCache {
 		ptr->SetReInstall(pkg, reinstall);
 	}
 
+	/// Mark packages that are no longer needed as garbage.
+	bool mark_and_sweep() const { return ptr->MarkAndSweep(); }
+
 	/// Is the installed Package broken?
 	bool is_now_broken(const PkgIterator& pkg) const { return (*ptr)[pkg].NowBroken(); }
 

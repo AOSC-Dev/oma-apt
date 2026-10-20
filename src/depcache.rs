@@ -56,6 +56,10 @@ impl DepCache {
     ///
     /// i.e. the Installed-Size of all packages marked for installation"
     /// minus the Installed-Size of all packages for removal."
+    pub fn mark_and_sweep(&self) -> bool {
+        self.ptr.mark_and_sweep()
+    }
+
     pub fn disk_size(&self) -> DiskSpace {
         let size = self.ptr.disk_size();
         if size < 0 {
@@ -290,6 +294,9 @@ pub(crate) mod raw {
         ///   * [true] = The package will be marked for reinstall.
         ///   * [false] = The package will be unmarked for reinstall.
         pub fn mark_reinstall(self: &PkgDepCache, pkg: &PkgIterator, reinstall: bool);
+
+        /// Mark packages that are no longer needed as garbage.
+        pub fn mark_and_sweep(self: &PkgDepCache) -> bool;
 
         /// Is the installed Package broken?
         pub fn is_now_broken(self: &PkgDepCache, pkg: &PkgIterator) -> bool;

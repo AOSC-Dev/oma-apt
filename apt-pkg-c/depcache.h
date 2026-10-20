@@ -1,6 +1,7 @@
 #pragma once
 #include <apt-pkg/cachefile.h>
 #include <apt-pkg/upgrade.h>
+#include <apt-pkg/algorithms.h>
 #include <memory>
 #include <type_traits>
 #include "package.h"
@@ -171,6 +172,9 @@ struct PkgDepCache {
 
 	/// Mark packages that are no longer needed as garbage.
 	bool mark_and_sweep() const { return ptr->MarkAndSweep(); }
+
+	/// Apply dpkg status corrections (apt's pkgApplyStatus).
+	bool apply_status() const { return pkgApplyStatus(*ptr); }
 
 	/// Is the installed Package broken?
 	bool is_now_broken(const PkgIterator& pkg) const { return (*ptr)[pkg].NowBroken(); }

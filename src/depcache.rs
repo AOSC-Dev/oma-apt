@@ -60,6 +60,10 @@ impl DepCache {
         self.ptr.mark_and_sweep()
     }
 
+    pub fn apply_status(&self) -> bool {
+        self.ptr.apply_status()
+    }
+
     pub fn disk_size(&self) -> DiskSpace {
         let size = self.ptr.disk_size();
         if size < 0 {
@@ -297,6 +301,9 @@ pub(crate) mod raw {
 
         /// Mark packages that are no longer needed as garbage.
         pub fn mark_and_sweep(self: &PkgDepCache) -> bool;
+
+        /// Apply dpkg status corrections (apt's pkgApplyStatus).
+        pub fn apply_status(self: &PkgDepCache) -> bool;
 
         /// Is the installed Package broken?
         pub fn is_now_broken(self: &PkgDepCache, pkg: &PkgIterator) -> bool;

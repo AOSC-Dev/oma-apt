@@ -28,6 +28,11 @@ impl<'a> Provider<'a> {
     pub fn version(&'a self) -> Version<'a> {
         Version::new(unsafe { self.target_ver() }, self.cache)
     }
+
+    /// The version this provider provides, if it is versioned.
+    pub fn version_str(&self) -> Option<&str> {
+        self.ptr.version_str().ok()
+    }
 }
 
 impl fmt::Display for Provider<'_> {

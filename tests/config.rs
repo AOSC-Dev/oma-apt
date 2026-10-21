@@ -99,6 +99,30 @@ mod config {
     }
 
     #[test]
+    fn test_compression_ytypes_order() {
+        let config = Config::new();
+        config.set_vector(
+            "Acquire::CompressionTypes::Order",
+            &vec!["zst"],
+        );
+
+        let order = config.get_compression_types();
+
+        assert_eq!(
+            order,
+            vec![
+                "zst".to_string(),
+                "xz".to_string(),
+                "bz2".to_string(),
+                "lzma".to_string(),
+                "gz".to_string(),
+                "lz4".to_string(),
+                "uncompressed".to_string(),
+            ]
+        )
+    }
+
+    #[test]
     fn get_architectures() {
         let config = Config::new();
 
